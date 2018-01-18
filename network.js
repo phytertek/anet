@@ -32,6 +32,11 @@ class Network {
     });
     return filtered;
   }
+  add(node) {
+    const network = new Set(this.network);
+    network.add(node);
+    this.network = [...network];
+  }
   remove(node) {
     const network = new Set(this.network);
     network.delete(node);
@@ -55,6 +60,7 @@ const network = new Network();
 const actions = {
   nextNode: () => network.next,
   removeNode: node => network.remove(node),
+  addNode: node => network.add(node),
   mergeNetwork: newNetwork => network.mergeNetwork(newNetwork),
   init: (origin, host) => network.init(origin, host),
   copy: () => network.copy

@@ -54,9 +54,8 @@ let next;
 const checkNeighbor = async () => {
   try {
     next = network.nextNode();
-    console.log(next);
     if (next !== host) {
-      const nextNeighborResponse = await httpReq.post(`${next}check`, {
+      const neighborResponse = await httpReq.post(`${next}check`, {
         host,
         network: network.copy()
       });
@@ -73,10 +72,9 @@ let poller = setInterval(pollRun, 1000);
 
 server.post('/check', async (req, res) => {
   try {
-    console.log('Check request', req.body);
+    console.log(network.copy());
     const origin = req.body.host;
-    const originNet = req.body.network;
-    network.mergeNetwork(originNet);
+    network.addNode(origin);
     res.json({ host, network });
   } catch (error) {
     res.json(error);
