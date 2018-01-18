@@ -9,11 +9,11 @@ const port = process.argv[2] || process.env.PORT; // 3000;
 const host = `${hostName}`;
 
 let network = [...new Set([origin, host])];
-const removeNode = (node) => {
+const removeNode = node => {
   const newNet = new Set(network);
   newNet.delete(n);
   network = [...newNet];
-}
+};
 const nextNode = () => {
   network = [...network];
   const next = network.shift();
@@ -23,12 +23,12 @@ const nextNode = () => {
 };
 const networkRemoveNode = async n => {
   try {
-    removeNode(n)
+    removeNode(n);
     network.forEach(node => {
-      await httpReq.post(`${net}remove-node`, { node: n })
-    })
+      httpReq.post(`${net}remove-node`, { node: n });
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 };
 const mergeNetwork = n => {
@@ -43,7 +43,7 @@ const pollRun = async () => {
     clearInterval(poller);
     await checkNeighbor();
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 };
 
@@ -81,7 +81,7 @@ server.post('/check', async (req, res) => {
   }
 });
 
-server.post('/remove-node', async)
+server.post('/remove-node', async);
 server.listen(port, err => {
   if (err) return console.log(err);
   console.log('Server running on port', port);
