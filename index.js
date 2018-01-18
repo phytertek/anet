@@ -11,7 +11,7 @@ const host = `${hostName}`;
 let network = [...new Set([origin, host])];
 const removeNode = node => {
   const newNet = new Set(network);
-  newNet.delete(n);
+  newNet.delete(node);
   network = [...newNet];
 };
 const nextNode = () => {
