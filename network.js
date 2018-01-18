@@ -37,7 +37,6 @@ class Network {
         this.decrementLifetime(node);
       }
     });
-    filtered;
     return filtered;
   }
   add(node) {
