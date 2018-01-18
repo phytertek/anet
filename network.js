@@ -43,9 +43,9 @@ class Network {
     this.network = [...network];
     this.addToRemovalQueue(node);
   }
-  mergeNetwork(newNetwork) {
-    const network = filteredByRemovalQueue(newNetwork);
-    this.network = [...new Set([...this.network, ...network])];
+  merge(newNetwork) {
+    // const network = filteredByRemovalQueue(newNetwork);
+    this.network = [...new Set([...this.network, ...newNetwork])];
   }
   init(origin, host) {
     this.network = [...new Set([origin, host])];
@@ -61,7 +61,7 @@ const actions = {
   nextNode: () => network.next,
   removeNode: node => network.remove(node),
   addNode: node => network.add(node),
-  mergeNetwork: newNetwork => network.mergeNetwork(newNetwork),
+  merge: newNetwork => network.merge(newNetwork),
   init: (origin, host) => network.init(origin, host),
   copy: () => network.copy
 };

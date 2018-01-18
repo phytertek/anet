@@ -74,7 +74,9 @@ server.post('/check', async (req, res) => {
   try {
     console.log(network.copy());
     const origin = req.body.host;
+    const originNetwork = req.body.network;
     network.addNode(origin);
+    network.merge(originNetwork);
     res.json({ host, network });
   } catch (error) {
     res.json(error);
