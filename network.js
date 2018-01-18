@@ -5,7 +5,7 @@ class Network {
   }
   get next() {
     const node = this.network.shift();
-    this.network.push(node);
+    if (!this.removalQueue[node]) this.network.push(node);
     return node;
   }
   addToRemovalQueue(node) {
