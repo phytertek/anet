@@ -65,7 +65,7 @@ const checkNeighbor = async () => {
         network: network.copy()
       });
     }
-    poller = setInterval(pollRun, 1000);
+    poller = setInterval(pollRun, 0);
   } catch (error) {
     network.removeNode(next);
     networkRemoveNode(next);
@@ -77,11 +77,11 @@ const checkNeighbor = async () => {
     console.log('*********************');
     console.log('NETWORK');
     console.log(network.copy());
-    poller = setInterval(pollRun, 1000);
+    poller = setInterval(pollRun, 0);
   }
 };
 
-let poller = setInterval(pollRun, 1000);
+let poller = setInterval(pollRun, 0);
 
 server.post('/check', async (req, res) => {
   try {
