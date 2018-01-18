@@ -63,7 +63,7 @@ const checkNeighbor = async () => {
     poller = setInterval(pollRun, 1000);
   } catch (error) {
     console.log('error', next);
-    await network.removeNode(next);
+    networkRemoveNode(next);
     poller = setInterval(pollRun, 1000);
   }
 };
