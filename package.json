@@ -1,0 +1,13 @@
+{
+  "name": "anet",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/phytertek/anet.git",
+  "author": "phytertek <ryan.phytertek@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.17.1",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2"
+  }
+}
