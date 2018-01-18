@@ -53,7 +53,7 @@ class Network {
     this.network = [...new Set([origin, host])];
   }
   get copy() {
-    return [...this.network];
+    return [...this.filteredByRemovalQueue(this.network)];
   }
 }
 
