@@ -44,7 +44,7 @@ class Network {
     this.addToRemovalQueue(node);
   }
   merge(newNetwork) {
-    // const network = filteredByRemovalQueue(newNetwork);
+    const network = filteredByRemovalQueue(newNetwork);
     this.network = [...new Set([...this.network, ...newNetwork])];
   }
   init(origin, host) {
