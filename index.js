@@ -28,7 +28,7 @@ const networkRemoveNode = async n => {
     network.removeNode(n);
     network.copy().forEach(node => {
       try {
-        await httpReq.post(`${node}remove-node`, { node: n });
+        httpReq.post(`${node}remove-node`, { node: n });
       } catch (error) {
         throw new Error(error);
       }
