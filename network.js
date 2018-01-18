@@ -11,11 +11,21 @@ class Network {
   addToRemovalQueue(node) {
     if (this.removalQueue[node]) return;
     this.removalQueue[node] = {
-      lifeTime: 10
+      lifeTime: 10,
+      recurrance: 0
     };
   }
   decrementLifetime(node) {
     this.removalQueue[node].lifeTime--;
+    if (this.removalQueue[node].lifeTime <= 0) {
+      delete this.removalQueue[node];
+    }
+  }
+  incrementRecurrance(node) {
+    this.removalQueue[node].recurrance++;
+    if (this.removalQueue[node].recurrance >= 20) {
+      delete this.removalQueue[node];
+    }
   }
   filteredByRemovalQueue(network) {
     const filtered = new Set(network);
@@ -23,12 +33,9 @@ class Network {
     Object.keys(this.removalQueue).forEach(node => {
       if (filtered.has(node)) {
         filtered.delete(node);
+        this.incrementRecurrance(node);
       } else {
-        if (this.removalQueue[node].lifeTime <= 0) {
-          delete this.removalQueue[node];
-        } else {
-          this.decrementLifetime(node);
-        }
+        this.decrementLifetime(node);
       }
     });
     filtered;
