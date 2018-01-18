@@ -25,6 +25,9 @@ const removeNeighbor = n => {
 const mergeNetwork = n => {
   network = [...new Set([...network, ...n])];
 };
+const newNet = n => {
+  network = [...new Set([...n, host])];
+};
 
 const pollRun = async () => {
   try {
@@ -60,7 +63,7 @@ server.post('/check', async (req, res) => {
     console.log('Check request', req.body);
     const origin = req.body.host;
     const originNet = req.body.network;
-    mergeNetwork(originNet);
+    newNet(originNet);
     res.json({ host, network });
   } catch (error) {
     res.json(error);
