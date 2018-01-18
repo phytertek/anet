@@ -33,7 +33,7 @@ class Network {
     return filtered;
   }
   remove(node) {
-    const network = new Set(network);
+    const network = new Set(this.network);
     network.delete(node);
     this.network = [...network];
     this.addToRemovalQueue(node);
