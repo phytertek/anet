@@ -19,6 +19,7 @@ class Network {
   }
   filteredByRemovalQueue(network) {
     const filtered = new Set(network);
+    filtered;
     Object.keys(this.removalQueue).forEach(node => {
       if (filtered.has(node)) {
         filtered.delete(node);
@@ -26,10 +27,11 @@ class Network {
         if (this.removalQueue[node].lifeTime <= 0) {
           delete this.removalQueue[node];
         } else {
-          decrementLifetime(node);
+          this.decrementLifetime(node);
         }
       }
     });
+    filtered;
     return filtered;
   }
   add(node) {
@@ -44,8 +46,8 @@ class Network {
     this.addToRemovalQueue(node);
   }
   merge(newNetwork) {
-    const network = filteredByRemovalQueue(newNetwork);
-    this.network = [...new Set([...this.network, ...newNetwork])];
+    const network = this.filteredByRemovalQueue(newNetwork);
+    this.network = [...new Set([...this.network, ...network])];
   }
   init(origin, host) {
     this.network = [...new Set([origin, host])];

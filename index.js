@@ -93,7 +93,6 @@ server.post('/remove-node', async (req, res) => {
 });
 server.listen(port, err => {
   if (err) return console.log(err);
-  console.log('Server running on port', port);
-
   console.log('*** Host:', host);
+  console.log('Server running on port', port);
 });
