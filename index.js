@@ -26,8 +26,12 @@ network.init(origin, host);
 const networkRemoveNode = async n => {
   try {
     network.removeNode(n);
-    network.copy().forEach(node => {
-      httpReq.post(`${node}remove-node`, { node: n });
+    network.copy().forEach(asnyc node => {
+      try {
+        await httpReq.post(`${node}remove-node`, { node: n });
+      } catch (error) {
+        throw new Error(error);
+      }
     });
   } catch (error) {
     console.log(error);
@@ -63,7 +67,7 @@ const checkNeighbor = async () => {
     poller = setInterval(pollRun, 1000);
   } catch (error) {
     console.log('error', next);
-    networkRemoveNode(next);
+    await networkRemoveNode(next);
     poller = setInterval(pollRun, 1000);
   }
 };
