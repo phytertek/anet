@@ -23,16 +23,16 @@ network.init(origin, host);
 //   network = [...new Set(network)];
 //   return next;
 // };
-// const networkRemoveNode = async n => {
-//   try {
-//     removeNode(n);
-//     network.forEach(node => {
-//       httpReq.post(`${node}remove-node`, { node: n });
-//     });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
+const networkRemoveNode = async n => {
+  try {
+    network.removeNode(n);
+    network.forEach(node => {
+      httpReq.post(`${node}remove-node`, { node: n });
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 // const mergeNetwork = n => {
 //   network = [...new Set([...network, ...n])];
 // };
