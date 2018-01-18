@@ -8,35 +8,7 @@ const hostName = process.argv[3] || process.env.HOST; // 'http://0.0.0.0';
 const port = process.argv[2] || process.env.PORT; // 3000;
 const host = `${hostName}`;
 
-let network = [...new Set([origin, host])];
-const removeNode = node => {
-  const newNet = new Set(network);
-  newNet.delete(node);
-  network = [...newNet];
-};
-const nextNode = () => {
-  network = [...network];
-  const next = network.shift();
-  network.push(next);
-  network = [...new Set(network)];
-  return next;
-};
-const networkRemoveNode = async n => {
-  try {
-    removeNode(n);
-    network.forEach(node => {
-      httpReq.post(`${node}remove-node`, { node: n });
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-const mergeNetwork = n => {
-  network = [...new Set([...network, ...n])];
-};
-const newNet = n => {
-  network = [...new Set([...n, host])];
-};
+const network = require('./network');
 
 const pollRun = async () => {
   try {
@@ -51,7 +23,7 @@ let next;
 
 const checkNeighbor = async () => {
   try {
-    next = nextNode();
+    next = network.nextNode();
     console.log(next);
     if (next !== host) {
       const nextNeighborResponse = await httpReq.post(`${next}check`, {
@@ -62,7 +34,7 @@ const checkNeighbor = async () => {
     poller = setInterval(pollRun, 1000);
   } catch (error) {
     console.log('error', next);
-    await networkRemoveNode(next);
+    await network.removeNode(next);
     poller = setInterval(pollRun, 1000);
   }
 };
@@ -74,7 +46,7 @@ server.post('/check', async (req, res) => {
     console.log('Check request', req.body);
     const origin = req.body.host;
     const originNet = req.body.network;
-    mergeNetwork(originNet);
+    network.mergeNetwork(originNet);
     res.json({ host, network });
   } catch (error) {
     res.json(error);
@@ -83,7 +55,7 @@ server.post('/check', async (req, res) => {
 
 server.post('/remove-node', async (req, res) => {
   try {
-    removeNode(req.body.node);
+    network.removeNode(req.body.node);
     res.sendStatus(200);
   } catch (error) {
     res.json(error);
