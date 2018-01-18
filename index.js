@@ -9,6 +9,36 @@ const port = process.argv[2] || process.env.PORT; // 3000;
 const host = `${hostName}`;
 
 const network = require('./network');
+network.init(origin, host);
+// let network = [...new Set([origin, host])];
+// const removeNode = node => {
+//   const newNet = new Set(network);
+//   newNet.delete(node);
+//   network = [...newNet];
+// };
+// const nextNode = () => {
+//   network = [...network];
+//   const next = network.shift();
+//   network.push(next);
+//   network = [...new Set(network)];
+//   return next;
+// };
+// const networkRemoveNode = async n => {
+//   try {
+//     removeNode(n);
+//     network.forEach(node => {
+//       httpReq.post(`${node}remove-node`, { node: n });
+//     });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+// const mergeNetwork = n => {
+//   network = [...new Set([...network, ...n])];
+// };
+// const newNet = n => {
+//   network = [...new Set([...n, host])];
+// };
 
 const pollRun = async () => {
   try {

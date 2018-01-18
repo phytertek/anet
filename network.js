@@ -42,6 +42,9 @@ class Network {
     const network = filteredByRemovalQueue(newNetwork);
     this.network = [...new Set([...this.network, ...network])];
   }
+  init(origin, host) {
+    this.network = [...new Set([origin, host])];
+  }
 }
 
 const network = new Network();
