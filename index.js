@@ -43,14 +43,14 @@ const checkNeighbor = async () => {
         network
       });
     }
-    poller = setInterval(pollRun, 0);
+    poller = setInterval(pollRun, 1000);
   } catch (error) {
     console.log('error', next);
-    poller = setInterval(pollRun, 0);
+    poller = setInterval(pollRun, 1000);
   }
 };
 
-let poller = setInterval(pollRun, 0);
+let poller = setInterval(pollRun, 1000);
 
 server.post('/check', async (req, res) => {
   try {
