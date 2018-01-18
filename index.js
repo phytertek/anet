@@ -89,6 +89,11 @@ server.post('/check', async (req, res) => {
 
 server.post('/remove-node', async (req, res) => {
   try {
+    console.log('*******************');
+    console.log('*******************');
+    console.log('*** REMOVE NODE ***');
+    console.log('*******************');
+    console.log('*******************');
     network.removeNode(req.body.node);
     res.sendStatus(200);
   } catch (error) {
