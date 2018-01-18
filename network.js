@@ -48,7 +48,7 @@ const network = new Network();
 
 const actions = {
   nextNode: () => network.next,
-  removeNode: node => network.removalQueue(node),
+  removeNode: node => network.remove(node),
   mergeNetwork: newNetwork => network.mergeNetwork(newNetwork)
 };
 
