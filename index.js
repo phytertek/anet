@@ -6,7 +6,7 @@ server.use(bodyParser.json());
 const origin = 'https://ane1.herokuapp.com/'; // 'http://0.0.0.0'
 const hostName = process.argv[3] || process.env.HOST; // 'http://0.0.0.0';
 const port = process.argv[2] || process.env.PORT; // 3000;
-const host = `${hostName}:${port}`;
+const host = `${hostName}`;
 
 let network = [...new Set([origin, host])];
 
@@ -38,7 +38,7 @@ const checkNeighbor = async () => {
     const next = nextNeighbor();
     console.log(next);
     if (next !== host) {
-      const nextNeighborResponse = await httpReq.post(`${next}/check`, {
+      const nextNeighborResponse = await httpReq.post(`${next}check`, {
         host,
         network
       });
