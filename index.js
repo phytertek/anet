@@ -33,9 +33,11 @@ const pollRun = async () => {
   } catch (error) {}
 };
 
+let next;
+
 const checkNeighbor = async () => {
   try {
-    const next = nextNeighbor();
+    next = nextNeighbor();
     console.log(next);
     if (next !== host) {
       const nextNeighborResponse = await httpReq.post(`${next}check`, {
@@ -46,6 +48,7 @@ const checkNeighbor = async () => {
     poller = setInterval(pollRun, 1000);
   } catch (error) {
     console.log('error', next);
+    removeNeighbor(next);
     poller = setInterval(pollRun, 1000);
   }
 };
