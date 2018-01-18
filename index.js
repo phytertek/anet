@@ -81,7 +81,14 @@ server.post('/check', async (req, res) => {
   }
 });
 
-server.post('/remove-node', async);
+server.post('/remove-node', async (req, res) => {
+  try {
+    removeNode(req.body.node);
+    res.sendStatus(200);
+  } catch (error) {
+    res.json(error);
+  }
+});
 server.listen(port, err => {
   if (err) return console.log(err);
   console.log('Server running on port', port);
