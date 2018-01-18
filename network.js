@@ -68,7 +68,8 @@ const actions = {
   addNode: node => network.add(node),
   merge: newNetwork => network.merge(newNetwork),
   init: (origin, host) => network.init(origin, host),
-  copy: () => network.copy
+  copy: () => network.copy,
+  getRemovalQueue: () => network.removalQueue
 };
 
 module.exports = actions;

@@ -69,7 +69,7 @@ const checkNeighbor = async () => {
   } catch (error) {
     network.removeNode(next);
     networkRemoveNode(next);
-    console.log('error', next);
+    console.log(network.getRemovalQueue());
     console.log('*********************');
     console.log('*********************');
     console.log('*** REMOVING NODE ***');
@@ -98,6 +98,7 @@ server.post('/check', async (req, res) => {
 server.post('/remove-node', async (req, res) => {
   try {
     network.removeNode(req.body.node);
+    console.log(network.getRemovalQueue());
     console.log('*******************');
     console.log('*******************');
     console.log('*** REMOVE NODE ***');
