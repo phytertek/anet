@@ -25,7 +25,7 @@ const networkRemoveNode = async n => {
   try {
     removeNode(n)
     network.forEach(node => {
-      await axios.post(`${net}remove-node`, { node: n })
+      await httpReq.post(`${net}remove-node`, { node: n })
     })
   } catch (error) {
     console.log(error)
