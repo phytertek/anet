@@ -101,6 +101,7 @@ server.post('/remove-node', async (req, res) => {
     console.log('*******************');
     console.log('*******************');
     console.log('*** REMOVE NODE ***');
+    console.log(req.body.node);
     console.log('*******************');
     console.log('*******************');
     console.log('NETWORK');
