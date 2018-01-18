@@ -52,7 +52,8 @@ const network = new Network();
 const actions = {
   nextNode: () => network.next,
   removeNode: node => network.remove(node),
-  mergeNetwork: newNetwork => network.mergeNetwork(newNetwork)
+  mergeNetwork: newNetwork => network.mergeNetwork(newNetwork),
+  init: (origin, host) => network.init(origin, host)
 };
 
 module.exports = actions;
