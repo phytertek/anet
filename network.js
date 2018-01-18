@@ -45,6 +45,9 @@ class Network {
   init(origin, host) {
     this.network = [...new Set([origin, host])];
   }
+  get copy() {
+    return [...this.network];
+  }
 }
 
 const network = new Network();
@@ -53,7 +56,8 @@ const actions = {
   nextNode: () => network.next,
   removeNode: node => network.remove(node),
   mergeNetwork: newNetwork => network.mergeNetwork(newNetwork),
-  init: (origin, host) => network.init(origin, host)
+  init: (origin, host) => network.init(origin, host),
+  copy: () => network.copy
 };
 
 module.exports = actions;

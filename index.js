@@ -58,7 +58,7 @@ const checkNeighbor = async () => {
     if (next !== host) {
       const nextNeighborResponse = await httpReq.post(`${next}check`, {
         host,
-        network
+        network: network.copy()
       });
     }
     poller = setInterval(pollRun, 1000);
