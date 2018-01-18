@@ -29,7 +29,6 @@ class Network {
   }
   filteredByRemovalQueue(network) {
     const filtered = new Set(network);
-    filtered;
     Object.keys(this.removalQueue).forEach(node => {
       if (filtered.has(node)) {
         filtered.delete(node);

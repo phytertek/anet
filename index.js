@@ -85,7 +85,6 @@ let poller = setInterval(pollRun, 1000);
 
 server.post('/check', async (req, res) => {
   try {
-    console.log(network.copy());
     const origin = req.body.host;
     const originNetwork = req.body.network;
     network.addNode(origin);
