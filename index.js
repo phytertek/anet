@@ -28,6 +28,8 @@ const networkRemoveNode = async n => {
     network.removeNode(n);
     network.copy().forEach(node => {
       try {
+        console.log('Broadcasting removal');
+        console.log(n);
         if (node !== host) httpReq.post(`${node}remove-node`, { node: n });
       } catch (error) {
         throw new Error(error);
@@ -66,8 +68,15 @@ const checkNeighbor = async () => {
     }
     poller = setInterval(pollRun, 1000);
   } catch (error) {
+    networkRemoveNode(next);
     console.log('error', next);
-    await networkRemoveNode(next);
+    console.log('*********************');
+    console.log('*********************');
+    console.log('*** REMOVING NODE ***');
+    console.log('*********************');
+    console.log('*********************');
+    console.log('NETWORK');
+    console.log(network.copy());
     poller = setInterval(pollRun, 1000);
   }
 };
@@ -94,6 +103,8 @@ server.post('/remove-node', async (req, res) => {
     console.log('*** REMOVE NODE ***');
     console.log('*******************');
     console.log('*******************');
+    console.log('NETWORK');
+    console.log(network.copy());
     network.removeNode(req.body.node);
     res.sendStatus(200);
   } catch (error) {
