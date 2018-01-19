@@ -4,9 +4,8 @@ const ledger = require('./ledger');
 const broadcastRemoveNode = async node => {
   network.copy().forEach(n => {
     try {
-      if (n !== network.getHost() && n !== network.getOrigin()) {
+      if (n !== network.getHost() && n !== network.getOrigin())
         axios.post(`${n}remove-node`, { node });
-      }
     } catch (error) {
       console.log('TX Broadcast Remove Node Error', error);
     }
@@ -14,6 +13,22 @@ const broadcastRemoveNode = async node => {
 };
 
 const actions = {
+  broadcastTransaction: async (sender, recipient, amount) => {
+    try {
+      console.log('*** Broadcasting transaction');
+      network.copy().forEach(node => {
+        if (node !== network.getHost())
+          axios.post(`${node}transactions/recieve`, {
+            host: network.getHost(),
+            sender,
+            recipient,
+            amount
+          });
+      });
+    } catch (error) {
+      console.log('TX Broadcast Transaction Error', error);
+    }
+  },
   checkNeighbor: async () => {
     const next = network.nextNode();
     console.log('Send Check', next);
@@ -38,11 +53,15 @@ const actions = {
     }
   },
   resolveConflicts: async () => {
-    const network = network.copy();
-    network.forEach(async node => {
-      const neighbor_chain = await axios(`${node}chain`);
-      ledger.resolveConflict(neighbor_chain.data);
-    });
+    try {
+      const network = network.copy();
+      network.forEach(async node => {
+        const neighbor_chain = await axios(`${node}chain`);
+        ledger.resolveConflict(neighbor_chain.data);
+      });
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 };
 

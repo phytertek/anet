@@ -93,9 +93,31 @@ const ledger = new Ledger();
 const actions = {
   getChain: () => ledger.chain,
   getTransactions: () => ledger.transactions,
-  newTransaction: (sender, recipient, amount) =>
-    ledger.newTransaction(sender, recipient, amount),
-  resolveConflict: neighbor_chain => ledger.resolveConflict(neighbor_chain)
+  newTransaction: (sender, recipient, amount) => {
+    const transaction = ledger.newTransaction(sender, recipient, amount);
+    mine();
+    return transaction;
+  },
+  resolveConflict: neighbor_chain => ledger.resolveConflict(neighbor_chain),
+  mine: async () => {
+    try {
+      const last_block = ledger.lastBlock;
+      const last_proof = last_block.proof;
+      const proof = await ledger.proofOfWork(last_proof);
+      ledger.newTransaction('0', nodeId, 1);
+      const previous_hash = ledger.hash(last_block);
+      const block = ledger.newTransaction(proof, previous_hash);
+      return {
+        message: 'New Block Forged',
+        index: block.index,
+        transactions: block.transactions,
+        proof: block.proof,
+        previous_hash: block.previous_hash
+      };
+    } catch (error) {
+      return error;
+    }
+  }
 };
 
 module.exports = actions;

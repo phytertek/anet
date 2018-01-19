@@ -2,6 +2,7 @@ const portFinder = require('portfinder');
 const identity = require('./identity');
 const network = require('./network');
 const ledger = require('./ledger');
+const tx = require('./tx');
 const bodyParser = require('body-parser');
 const server = require('express')();
 server.use(bodyParser.json());
@@ -39,22 +40,50 @@ server.post('/remove-node', async (req, res) => {
   }
 });
 
+server.post('/transactions/recieve', async (req, res) => {
+  try {
+    console.log('transaction replication recieved');
+    const required = ['host', 'sender', 'recipient', 'amount'];
+    for (let i = 0; i < required.length; i++) {
+      if (!!!req.body[required[i]])
+        return res.json(`${required[i]} is required in the request body`);
+    }
+    if (network.has(req.body.host)) {
+      ledger.newTransaction(
+        req.body.sender,
+        req.body.recipient,
+        req.body.amount
+      );
+    }
+    res.sendStatus(201);
+  } catch (error) {
+    res.json(error);
+  }
+});
+
 server.post('/transactions/new', async (req, res) => {
   try {
     console.log('New transaction Recieved');
     // Check that the required fields are in the POST'ed data
     const required = ['sender', 'recipient', 'amount'];
-    required.forEach(k => {
-      if (!!!req.body[k])
-        throw new Error(`${k} is required in the request body`);
-    });
+    for (let i = 0; i < required.length; i++) {
+      if (!!!req.body[required[i]])
+        return res.json(`${required[i]} is required in the request body`);
+    }
     const index = ledger.newTransaction(
       req.body.sender,
       req.body.recipient,
       req.body.amount
     );
+    tx.broadcastTransaction(
+      req.body.sender,
+      req.body.recipient,
+      req.body.amount
+    );
     res
-      .json({ message: `Transaction will be added to block ${index}` })
+      .json({
+        message: `Transaction will be added to block ${index}`
+      })
       .status(201);
   } catch (error) {
     res.json(error);

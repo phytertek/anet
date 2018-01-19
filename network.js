@@ -40,6 +40,10 @@ class Network {
     });
     return filtered;
   }
+  has(node) {
+    const network = new Set(this.network);
+    return network.has(node);
+  }
   add(node) {
     const network = new Set(this.network);
     network.add(node);
@@ -66,6 +70,7 @@ class Network {
 const network = new Network();
 
 const actions = {
+  has: node => network.has(node),
   getHost: () => network.host,
   getOrigin: () => network.origin,
   nextNode: () => network.next,
