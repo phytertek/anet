@@ -4,9 +4,7 @@ class Network {
     this.removalQueue = removalQueue;
   }
   get next() {
-    const node = this.network.shift();
-    if (!this.removalQueue[node]) this.network.push(node);
-    return node;
+    return this.network[Math.floor(Math.random() * this.network.length)];
   }
   addToRemovalQueue(node) {
     if (this.removalQueue[node]) return;
