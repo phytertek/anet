@@ -95,7 +95,7 @@ const actions = {
   getTransactions: () => ledger.transactions,
   newTransaction: (sender, recipient, amount) => {
     const transaction = ledger.newTransaction(sender, recipient, amount);
-    mine();
+    // mine();
     return transaction;
   },
   resolveConflict: neighbor_chain => ledger.resolveConflict(neighbor_chain),

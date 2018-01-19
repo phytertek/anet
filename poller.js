@@ -1,5 +1,5 @@
 const tx = require('./tx');
-const interval = process.env.INTERVAL || 0;
+const interval = process.env.INTERVAL || 1000;
 let poller;
 
 const pollRun = async () => {
