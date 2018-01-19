@@ -14,7 +14,6 @@ const pollRun = async () => {
 const checkNeighbor = async () => {
   try {
     const res = await tx.checkNeighbor();
-    /** ledger reconcile here */
     poller = setInterval(pollRun, interval);
   } catch (error) {
     poller = setInterval(pollRun, interval);

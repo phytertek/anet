@@ -1,17 +1,30 @@
 const portFinder = require('portfinder');
 const identity = require('./identity');
 const network = require('./network');
+const ledger = require('./ledger');
 const bodyParser = require('body-parser');
 const server = require('express')();
 server.use(bodyParser.json());
 
+server.get('/network', (req, res) => res.json(network.copy()));
+
+server.get('/chain', (req, res) => res.json(ledger.getChain()));
+
+server.get('/transactions', (req, res) => res.json(ledger.getTransactions()));
+
 server.post('/check', async (req, res) => {
   try {
-    console.log('Recieve Check', network.copy());
-    const origin = req.body.host;
-    const originNetwork = req.body.network;
-    network.merge(originNetwork);
-    res.json({ host: identity.host, network: network.copy() });
+    console.log('Rec Check', req.body.host);
+    const neighbor = req.body.host;
+    const neighborNetwork = req.body.network;
+    const neighborChain = req.body.chain;
+    network.merge(neighborNetwork);
+    ledger.resolveConflict(neighborChain);
+    res.json({
+      host: network.getHost(),
+      network: network.copy(),
+      chain: ledger.getChain()
+    });
   } catch (error) {
     res.json(error);
   }
@@ -26,10 +39,33 @@ server.post('/remove-node', async (req, res) => {
   }
 });
 
+server.post('/transactions/new', async (req, res) => {
+  try {
+    console.log('New transaction Recieved');
+    // Check that the required fields are in the POST'ed data
+    const required = ['sender', 'recipient', 'amount'];
+    required.forEach(k => {
+      if (!!!req.body[k])
+        throw new Error(`${k} is required in the request body`);
+    });
+    const index = ledger.newTransaction(
+      req.body.sender,
+      req.body.recipient,
+      req.body.amount
+    );
+    res
+      .json({ message: `Transaction will be added to block ${index}` })
+      .status(201);
+  } catch (error) {
+    res.json(error);
+  }
+});
+
+let port, host;
 const start = async () => {
   try {
-    const port = identity.port || (await portFinder.getPortPromise());
-    const host =
+    port = identity.port || (await portFinder.getPortPromise());
+    host =
       identity.hostName === 'http://0.0.0.0'
         ? `${identity.hostName}:${port}/`
         : identity.hostName;

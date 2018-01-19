@@ -1,8 +1,11 @@
 class Network {
   constructor(network = [], removalQueue = {}) {
+    this.host = null;
+    this.origin = null;
     this.network = [...new Set(network)];
     this.removalQueue = removalQueue;
   }
+
   get next() {
     return this.network[Math.floor(Math.random() * this.network.length)];
   }
@@ -51,6 +54,8 @@ class Network {
     this.network = [...new Set([...this.network, ...network])];
   }
   init(origin, host) {
+    this.origin = origin;
+    this.host = host;
     this.network = [...new Set([origin, host])];
   }
   get copy() {
@@ -61,6 +66,8 @@ class Network {
 const network = new Network();
 
 const actions = {
+  getHost: () => network.host,
+  getOrigin: () => network.origin,
   nextNode: () => network.next,
   removeNode: node => network.remove(node),
   addNode: node => network.add(node),
