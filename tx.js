@@ -53,7 +53,7 @@ const actions = {
     const next = network.next();
     try {
       console.log('Poll Network', next);
-      const res = await axios.post(`${next}check`, {
+      const res = await axios.post(`${next}network/poll`, {
         host: network.host(),
         network: network.copy(),
         chain: ledger.copy()
@@ -79,8 +79,6 @@ const actions = {
         const res = await axios.get(`${node}transactions`);
         console.log('Neighbor Transactions', res.data);
         if (transactions.length < res.data.length) {
-          console.log('t len', transactions.length);
-          console.log('node t len', res.data.length);
           const hashed_transactions = transactions.map(t => ledger.hash(t));
           const hashed_node_transactions = res.data.map(t => ledger.hash(t));
           const conflicts = hashed_transactions.filter(
@@ -95,9 +93,44 @@ const actions = {
           }
         }
       }
-      return 'Done';
+      return true;
     } catch (error) {
       console.log('TX Resolve Transactions Error', error);
+      return false;
+    }
+  },
+  broadcastTransactionClear: async () => {
+    try {
+      console.log('Broadcast Transaction Clear');
+      network.copy().forEach(async node => {
+        if (node !== network.host())
+          await axios.post(`${node}transactions/clear`, {
+            host: network.host(),
+            network: network.copy(),
+            chain: ledger.copy()
+          });
+      });
+      return true;
+    } catch (error) {
+      console.log('TX Broadcast Transaction Error', error);
+      return false;
+    }
+  },
+  broadcastMinedBlock: async () => {
+    try {
+      console.log('Broadcast Mined Block');
+      network.copy().forEach(async node => {
+        if (node !== network.host())
+          await axios.post(`${node}network/poll`, {
+            host: network.host(),
+            network: network.copy(),
+            chain: ledger.copy()
+          });
+      });
+      return true;
+    } catch (error) {
+      console.log('TX Broadcast Transaction Error', error);
+      return false;
     }
   }
 };

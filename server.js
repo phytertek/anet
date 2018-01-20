@@ -3,6 +3,7 @@ const identity = require('./identity');
 const network = require('./network');
 const ledger = require('./ledger');
 const tx = require('./tx');
+const mine = require('./mine');
 const bodyParser = require('body-parser');
 const server = require('express')();
 server.use(bodyParser.json());
@@ -27,7 +28,7 @@ server.get('/ledger', (req, res) => res.json(ledger.copy()));
 
 server.get('/transactions', (req, res) => res.json(ledger.trasactions()));
 
-server.post('/check', async (req, res) => {
+server.post('/network/poll', async (req, res) => {
   try {
     console.log('Rec Check', req.body.host);
     const neighbor = req.body.host;
@@ -81,6 +82,15 @@ server.post('/transactions/recieve', async (req, res) => {
   }
 });
 
+server.get('/transactions/clear', async (req, res) => {
+  try {
+    ledger.clearTransactions();
+    res.sendStatus(200);
+  } catch (error) {
+    res.json(error);
+  }
+});
+
 server.post('/transactions/new', async (req, res) => {
   try {
     console.log('New transaction Recieved');
@@ -106,7 +116,9 @@ server.post('/transactions/new', async (req, res) => {
         message: `Transaction will be added to block ${index}`
       })
       .status(201);
-    // ledger.mine();
+    // await tx.resolveTransactions();
+    ledger.mine();
+    await tx.broadcastTransactionClear();
   } catch (error) {
     res.json(error);
   }

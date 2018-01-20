@@ -131,7 +131,8 @@ const actions = {
   },
   proofOfWork: async last_proof => ledger.proofOfWork(last_proof),
   hash: block => ledger.hash(block),
-  setTransactions: transactions => (ledger.transactions = transactions)
+  setTransactions: transactions => (ledger.transactions = transactions),
+  clearTransactions: () => (ledger.transactions = [])
 };
 
 module.exports = actions;
