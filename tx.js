@@ -2,65 +2,102 @@ const axios = require('axios');
 const network = require('./network');
 const ledger = require('./ledger');
 const broadcastRemoveNode = async node => {
-  network.copy().forEach(n => {
-    try {
-      if (n !== network.getHost() && n !== network.getOrigin())
-        axios.post(`${n}remove-node`, { node });
-    } catch (error) {
-      console.log('TX Broadcast Remove Node Error', error);
-    }
-  });
+  try {
+    network.copy().forEach(n => {
+      console.log('Broadcast Remove Node');
+      if (n !== network.host() && n !== network.origin())
+        axios.post(`${n}network/remove`, { node });
+    });
+  } catch (error) {
+    console.log('TX Broadcast Remove Node Error', error);
+  }
 };
 
 const actions = {
-  broadcastTransaction: async (sender, recipient, amount) => {
+  broadcastStartup: async host => {
     try {
-      console.log('*** Broadcasting transaction');
-      network.copy().forEach(node => {
-        if (node !== network.getHost())
-          axios.post(`${node}transactions/recieve`, {
-            host: network.getHost(),
+      if (!host) host = network.host();
+      console.log('Broadcast Startup');
+      network.copy().forEach(async node => {
+        if (node !== network.host() && node !== host) {
+          const res = await axios.post(`${node}network/add`, {
+            host,
+            network: network.copy()
+          });
+          network.merge(res.data.network);
+        }
+      });
+    } catch (error) {
+      console.log('TX Broadcast Startup Error', error);
+    }
+  },
+  broadcastTransaction: async (sender, recipient, amount, timestamp) => {
+    try {
+      console.log('Broadcast Transaction', timestamp);
+      network.copy().forEach(async node => {
+        if (node !== network.host())
+          await axios.post(`${node}transactions/recieve`, {
+            host: network.host(),
+            chain: ledger.copy(),
             sender,
             recipient,
-            amount
+            amount,
+            timestamp
           });
       });
     } catch (error) {
       console.log('TX Broadcast Transaction Error', error);
     }
   },
-  checkNeighbor: async () => {
-    const next = network.nextNode();
-    console.log('Send Check', next);
+  pollNetwork: async () => {
+    const next = network.next();
     try {
-      if (next !== network.getHost()) {
-        const res = await axios.post(`${next}check`, {
-          host: network.getHost(),
-          network: network.copy(),
-          chain: ledger.getChain()
-        });
-        const neighbor = res.data.host;
-        const neighborNetwork = res.data.network;
-        const neighborChain = res.data.chain;
-        network.merge(neighborNetwork);
-        ledger.resolveConflict(neighborChain);
-
-        return res;
-      }
+      console.log('Poll Network', next);
+      const res = await axios.post(`${next}check`, {
+        host: network.host(),
+        network: network.copy(),
+        chain: ledger.copy()
+      });
+      const neighbor = res.data.host;
+      const neighborNetwork = res.data.network;
+      const neighborChain = res.data.chain;
+      network.merge(neighborNetwork);
+      ledger.resolve(neighborChain);
+      return res;
     } catch (error) {
-      network.removeNode(next);
+      console.log('Node Not Responding', next);
+      network.remove(next);
       broadcastRemoveNode(next);
     }
   },
-  resolveConflicts: async () => {
+  resolveTransactions: async () => {
     try {
-      const network = network.copy();
-      network.forEach(async node => {
-        const neighbor_chain = await axios(`${node}chain`);
-        ledger.resolveConflict(neighbor_chain.data);
-      });
+      const sampleSize = Math.min(network.copy().length, 10);
+      for (let i = 0; i < sampleSize; i++) {
+        const node = network.next();
+        const transactions = ledger.trasactions();
+        const res = await axios.get(`${node}transactions`);
+        console.log('Neighbor Transactions', res.data);
+        if (transactions.length < res.data.length) {
+          console.log('t len', transactions.length);
+          console.log('node t len', res.data.length);
+          const hashed_transactions = transactions.map(t => ledger.hash(t));
+          const hashed_node_transactions = res.data.map(t => ledger.hash(t));
+          const conflicts = hashed_transactions.filter(
+            t => !hashed_node_transactions.includes(t)
+          );
+          if (conflicts.length === 0) {
+            console.log('Found more up to date transactions list');
+            ledger.setTransactions(res.data);
+          } else {
+            console.log('Transaction Conflicts');
+            throw new Error(conflicts);
+          }
+        }
+      }
+      return 'Done';
     } catch (error) {
-      throw new Error(error);
+      console.log('TX Resolve Transactions Error', error);
     }
   }
 };

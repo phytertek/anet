@@ -7,7 +7,8 @@ class Network {
   }
 
   get next() {
-    return this.network[Math.floor(Math.random() * this.network.length)];
+    const next = this.network[Math.floor(Math.random() * this.network.length)];
+    return next !== this.host ? next : this.next;
   }
   addToRemovalQueue(node) {
     if (this.removalQueue[node]) return;
@@ -71,15 +72,15 @@ const network = new Network();
 
 const actions = {
   has: node => network.has(node),
-  getHost: () => network.host,
-  getOrigin: () => network.origin,
-  nextNode: () => network.next,
-  removeNode: node => network.remove(node),
-  addNode: node => network.add(node),
+  host: () => network.host,
+  origin: () => network.origin,
+  next: () => network.next,
+  remove: node => network.remove(node),
+  add: node => network.add(node),
   merge: newNetwork => network.merge(newNetwork),
   init: (origin, host) => network.init(origin, host),
   copy: () => network.copy,
-  getRemovalQueue: () => network.removalQueue
+  removalQueue: () => network.removalQueue
 };
 
 module.exports = actions;

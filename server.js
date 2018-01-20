@@ -9,9 +9,23 @@ server.use(bodyParser.json());
 
 server.get('/network', (req, res) => res.json(network.copy()));
 
-server.get('/chain', (req, res) => res.json(ledger.getChain()));
+server.post('/network/add', async (req, res) => {
+  try {
+    const host = req.body.host;
+    if (!network.has(host)) {
+      network.add(host);
+      network.merge(req.body.network);
+      tx.broadcastStartup(host);
+    }
+    res.json({ network: network.copy() });
+  } catch (error) {
+    res.json(error);
+  }
+});
 
-server.get('/transactions', (req, res) => res.json(ledger.getTransactions()));
+server.get('/ledger', (req, res) => res.json(ledger.copy()));
+
+server.get('/transactions', (req, res) => res.json(ledger.trasactions()));
 
 server.post('/check', async (req, res) => {
   try {
@@ -20,40 +34,46 @@ server.post('/check', async (req, res) => {
     const neighborNetwork = req.body.network;
     const neighborChain = req.body.chain;
     network.merge(neighborNetwork);
-    ledger.resolveConflict(neighborChain);
+    ledger.resolve(neighborChain);
     res.json({
-      host: network.getHost(),
+      host: network.host(),
       network: network.copy(),
-      chain: ledger.getChain()
+      chain: ledger.copy()
     });
   } catch (error) {
     res.json(error);
   }
 });
 
-server.post('/remove-node', async (req, res) => {
+server.post('/network/remove', async (req, res) => {
   try {
-    network.removeNode(req.body.node);
+    network.remove(req.body.node);
     res.sendStatus(200);
   } catch (error) {
     res.json(error);
   }
 });
 
+server.get('/test', (req, res) => res.json(tx.resolveTransactions()));
+
 server.post('/transactions/recieve', async (req, res) => {
   try {
     console.log('transaction replication recieved');
-    const required = ['host', 'sender', 'recipient', 'amount'];
+    const required = ['host', 'sender', 'recipient', 'amount', 'timestamp'];
     for (let i = 0; i < required.length; i++) {
       if (!!!req.body[required[i]])
-        return res.json(`${required[i]} is required in the request body`);
+        return console.log(`${required[i]} is required in the request body`);
     }
     if (network.has(req.body.host)) {
+      console.log('network has host');
       ledger.newTransaction(
         req.body.sender,
         req.body.recipient,
-        req.body.amount
+        req.body.amount,
+        req.body.timestamp
       );
+    } else {
+      console.log('network no have host');
     }
     res.sendStatus(201);
   } catch (error) {
@@ -70,7 +90,7 @@ server.post('/transactions/new', async (req, res) => {
       if (!!!req.body[required[i]])
         return res.json(`${required[i]} is required in the request body`);
     }
-    const index = ledger.newTransaction(
+    const { index, timestamp } = ledger.newTransaction(
       req.body.sender,
       req.body.recipient,
       req.body.amount
@@ -78,13 +98,15 @@ server.post('/transactions/new', async (req, res) => {
     tx.broadcastTransaction(
       req.body.sender,
       req.body.recipient,
-      req.body.amount
+      req.body.amount,
+      timestamp
     );
     res
       .json({
         message: `Transaction will be added to block ${index}`
       })
       .status(201);
+    // ledger.mine();
   } catch (error) {
     res.json(error);
   }
@@ -102,6 +124,7 @@ const start = async () => {
     server.listen(port, () => {
       console.log('*** Host:', host);
       console.log('Server running on port', port);
+      tx.broadcastStartup();
     });
   } catch (error) {
     console.log(error);
