@@ -52,17 +52,20 @@ const actions = {
   pollNetwork: async () => {
     const next = network.next();
     try {
-      console.log('Poll Network', next);
+      console.log('Send Poll', next);
       const res = await axios.post(`${next}network/poll`, {
         host: network.host(),
         network: network.copy(),
-        chain: ledger.copy()
+        chain: ledger.copy(),
+        transactions: ledger.transactions()
       });
       const neighbor = res.data.host;
       const neighborNetwork = res.data.network;
       const neighborChain = res.data.chain;
+      const neighborTransactions = res.data.transactions;
       network.merge(neighborNetwork);
       ledger.resolve(neighborChain);
+      // ledger.resolveTransactions(neighborTransactions);
       return res;
     } catch (error) {
       console.log('Node Not Responding', next);
@@ -104,15 +107,11 @@ const actions = {
       console.log('Broadcast Transaction Clear');
       network.copy().forEach(async node => {
         if (node !== network.host())
-          await axios.post(`${node}transactions/clear`, {
-            host: network.host(),
-            network: network.copy(),
-            chain: ledger.copy()
-          });
+          await axios.get(`${node}transactions/clear`);
       });
       return true;
     } catch (error) {
-      console.log('TX Broadcast Transaction Error', error);
+      console.log('TX Broadcast Transaction Clear Error', error);
       return false;
     }
   },

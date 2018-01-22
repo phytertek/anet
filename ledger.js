@@ -1,9 +1,11 @@
 const hash = require('object-hash');
 const network = require('./network');
+const poller = require('./poller');
 class Ledger {
   constructor() {
     this.chain = [];
     this.transactions = [];
+    this.skipTransactionResolve = false;
     this.nodeId = this.hash(network.host());
     this.newBlock(1, 100);
   }
@@ -59,10 +61,11 @@ class Ledger {
   validProof(last_proof, proof) {
     const guess = `${last_proof}${proof}`;
     const guess_hash = this.hash(guess);
-    return guess_hash.slice(0, 4) === '0000';
+    console.log('Validating proof', guess_hash);
+    return guess_hash.slice(0, 5) === '00000';
   }
 
-  async validChain(chain) {
+  validChain(chain) {
     // Determine if a given blockchain is valid
     // :param chain: <list> A blockchain
     // :return: <bool> True if valid, False if not
@@ -92,10 +95,13 @@ class Ledger {
   }
 
   resolve(neighbor_chain) {
+    let has_new_chain = false;
     let max_length = this.chain.length;
     if (neighbor_chain.length > max_length && this.validChain(neighbor_chain)) {
       this.chain = neighbor_chain;
+      has_new_chain = true;
     }
+    return has_new_chain;
   }
 }
 
@@ -103,7 +109,7 @@ const ledger = new Ledger();
 
 const actions = {
   copy: () => ledger.chain,
-  trasactions: () => ledger.transactions,
+  transactions: () => ledger.transactions,
   newTransaction: (sender, recipient, amount, timestamp) =>
     ledger.newTransaction(sender, recipient, amount, timestamp),
   resolve: neighbor_chain => ledger.resolve(neighbor_chain),
@@ -132,7 +138,36 @@ const actions = {
   proofOfWork: async last_proof => ledger.proofOfWork(last_proof),
   hash: block => ledger.hash(block),
   setTransactions: transactions => (ledger.transactions = transactions),
-  clearTransactions: () => (ledger.transactions = [])
+  clearTransactions: () => {
+    ledger.transactions = [];
+    ledger.skipTransactionResolve = true;
+  },
+  resolveTransactions: async transactions => {
+    if (
+      !ledger.skipTransactionResolve &&
+      ledger.transactions.length < transactions.length
+    ) {
+      const this_transactions = ledger.transactions.map(t => ledger.hash(t));
+      const other_transactions = transactions.map(t => ledger.hash(t));
+      const conflicts = this_transactions.filter(
+        t => !other_transactions.includes(t)
+      );
+      if (!!!conflicts.length) {
+        console.log(
+          'Updating transactions list',
+          ledger.skipTransactionResolve
+        );
+        ledger.transactions = transactions;
+      } else {
+        console.log('Ledger Transactions', ledger.transactions);
+        console.log('Neighbor Transactions', transactions);
+        console.log('Recieved trasactions list has conflicts');
+      }
+    }
+    ledger.skipTransactionResolve = false;
+  },
+  validChain: chain => ledger.validChain(chain),
+  setChain: chain => (ledger.chain = chain)
 };
 
 module.exports = actions;

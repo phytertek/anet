@@ -1,25 +1,14 @@
 const tx = require('./tx');
-const interval = process.env.INTERVAL || 500;
+const interval = process.env.INTERVAL || 1500;
 let poller;
 
-const pollRun = async () => {
+const pollNetwork = () => {
   try {
-    clearInterval(poller);
-    await pollNetwork();
+    tx.pollNetwork();
   } catch (error) {
     console.log(error);
+    poller = setInterval(pollNetwork, interval);
   }
 };
 
-const pollNetwork = async () => {
-  try {
-    const res = await tx.pollNetwork();
-    poller = setInterval(pollRun, interval);
-    return res;
-  } catch (error) {
-    console.log(error);
-    poller = setInterval(pollRun, interval);
-  }
-};
-
-poller = setInterval(pollRun, interval);
+poller = setInterval(pollNetwork, interval);

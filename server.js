@@ -2,7 +2,9 @@ const portFinder = require('portfinder');
 const identity = require('./identity');
 const network = require('./network');
 const ledger = require('./ledger');
+const blockResolver = require('./blockResolver');
 const tx = require('./tx');
+const poller = require('./poller');
 const mine = require('./mine');
 const bodyParser = require('body-parser');
 const server = require('express')();
@@ -26,20 +28,31 @@ server.post('/network/add', async (req, res) => {
 
 server.get('/ledger', (req, res) => res.json(ledger.copy()));
 
-server.get('/transactions', (req, res) => res.json(ledger.trasactions()));
+server.get('/transactions', (req, res) => res.json(ledger.transactions()));
 
 server.post('/network/poll', async (req, res) => {
   try {
-    console.log('Rec Check', req.body.host);
+    console.log('Recieve Poll', req.body.host);
+    const required = ['host', 'network', 'chain', 'transactions'];
+    for (let i = 0; i < required.length; i++) {
+      if (!!!req.body[required[i]])
+        return console.log(
+          `RECIVE POLL -- ${required[i]} is required in the request body`
+        );
+    }
     const neighbor = req.body.host;
     const neighborNetwork = req.body.network;
     const neighborChain = req.body.chain;
+    const neighborTransactions = req.body.transactions;
     network.merge(neighborNetwork);
-    ledger.resolve(neighborChain);
+    // ledger.resolve(neighborChain);
+    // ledger.resolveTransactions(neighborTransactions);
+    blockResolver(neighborChain);
     res.json({
       host: network.host(),
       network: network.copy(),
-      chain: ledger.copy()
+      chain: ledger.copy(),
+      transactions: ledger.transactions()
     });
   } catch (error) {
     res.json(error);
@@ -55,7 +68,10 @@ server.post('/network/remove', async (req, res) => {
   }
 });
 
-server.get('/test', (req, res) => res.json(tx.resolveTransactions()));
+server.get('/test', (req, res) => {
+  tx.broadcastTransactionClear();
+  res.sendStatus(200);
+});
 
 server.post('/transactions/recieve', async (req, res) => {
   try {
@@ -77,6 +93,7 @@ server.post('/transactions/recieve', async (req, res) => {
       console.log('network no have host');
     }
     res.sendStatus(201);
+    ledger.mine();
   } catch (error) {
     res.json(error);
   }
@@ -84,6 +101,7 @@ server.post('/transactions/recieve', async (req, res) => {
 
 server.get('/transactions/clear', async (req, res) => {
   try {
+    console.log('Clearing Transactions');
     ledger.clearTransactions();
     res.sendStatus(200);
   } catch (error) {
@@ -105,6 +123,7 @@ server.post('/transactions/new', async (req, res) => {
       req.body.recipient,
       req.body.amount
     );
+
     tx.broadcastTransaction(
       req.body.sender,
       req.body.recipient,
@@ -116,9 +135,6 @@ server.post('/transactions/new', async (req, res) => {
         message: `Transaction will be added to block ${index}`
       })
       .status(201);
-    // await tx.resolveTransactions();
-    ledger.mine();
-    await tx.broadcastTransactionClear();
   } catch (error) {
     res.json(error);
   }
