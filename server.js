@@ -93,7 +93,6 @@ server.post('/transactions/recieve', async (req, res) => {
       console.log('network no have host');
     }
     res.sendStatus(201);
-    ledger.mine();
   } catch (error) {
     res.json(error);
   }
@@ -123,13 +122,14 @@ server.post('/transactions/new', async (req, res) => {
       req.body.recipient,
       req.body.amount
     );
-
+    console.log('Created transaction');
     tx.broadcastTransaction(
       req.body.sender,
       req.body.recipient,
       req.body.amount,
       timestamp
     );
+    console.log('broadcasted transaction');
     res
       .json({
         message: `Transaction will be added to block ${index}`
