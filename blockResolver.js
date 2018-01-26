@@ -6,7 +6,7 @@ const resolver = neighbor_chain => {
   const this_trasactions = ledger.transactions();
 
   // Is neighbor_chain > this_chain?
-  if (neighbor_chain.length > this_chain) {
+  if (neighbor_chain.length > this_chain.length) {
     const this_chain_hash = ledger.hash(this_chain);
     const neighbor_chain_hash = ledger.hash(
       neighbor_chain.slice(0, this_chain.length)
